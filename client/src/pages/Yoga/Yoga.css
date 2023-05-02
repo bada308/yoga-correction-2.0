@@ -1,0 +1,102 @@
+.yoga-container {
+  background: rgb(255, 245, 228);
+  padding: 0px;
+  margin: 0px;
+  width: 100vw;
+  height: 100vh;
+}
+
+.secondary-btn {
+  padding: 10px 20px 10px 20px;
+  border: none;
+  background-color: rgba(255, 148, 148, 0.4);
+  color: white;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.secondary-btn:hover {
+  color: black;
+}
+
+.starting-contdown {
+  margin: auto;
+  border: 10px solid rgba(125, 125, 125, 0.5);
+  width: max-content;
+  padding: 10px 30px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0);
+  position: relative;
+  top: 45%;
+}
+.starting-contdown h1 {
+  color: white;
+}
+.pose-img {
+  position: absolute;
+  right: 10px;
+  top: 30%;
+  width: 520px;
+  height: auto;
+  aspect-ratio: 1;
+}
+
+.performance-container {
+  display: flex;
+  padding: 20px;
+  position: absolute;
+  margin-top: 30px;
+  right: 150px;
+}
+
+.pose-performance {
+  margin: 10px 10px;
+  background-color: white;
+  border-radius: 8px;
+  padding: 10px;
+}
+.pose-performance h4 {
+  color: rgba(0, 0, 0, 0.7);
+}
+
+#webcam {
+  transform: rotateY(180deg);
+}
+
+#my-canvas {
+  transform: rotateY(180deg);
+}
+.yoga-header {
+  width: 100vw;
+  height: 10%;
+  background-color: rgb(255, 148, 148);
+  margin-bottom: 10px;
+  font-size: 44px;
+  color: white;
+  font-family: "Noto Sans KR", sans-serif;
+  font-weight: 600;
+  font-size: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.webcam-canvas-container {
+  width: 100vw;
+  height: 80vh;
+  position: relative;
+}
+
+.webcam{
+  transform: rotateY(180deg);
+    -webkit-transform:rotateY(180deg); /* Safari and Chrome */
+    -moz-transform:rotateY(180deg); /* Firefox */
+  position: absolute;
+  top: 10px;
+}
+
+canvas{
+  position: absolute;
+  top: 10px;
+  z-index: 1,
+}

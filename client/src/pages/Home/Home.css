@@ -1,0 +1,90 @@
+.home-header {
+  background: rgb(255, 148, 148);
+  width: 100vw;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.home-container {
+  width: 100vw;
+  height: auto;
+  background: #fff5e4;
+}
+
+.header-btn:hover {
+  border-color: white;
+}
+
+.home-heading {
+  padding: 0px;
+  margin: 0px;
+  font-size: 44px;
+  margin-left: 30px;
+  color: white;
+  font-family: "Caveat", cursive;
+}
+
+.home-main {
+  margin: auto;
+  padding-top: 5%;
+  width: 100vw;
+  height: 100vh;
+  background-color: white;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.description {
+  font-size: 60px;
+  color: rgb(27, 15, 15);
+  text-align: center;
+  margin: 0px;
+  margin-top: 1%;
+  font-family: "Raleway", sans-serif;
+  letter-spacing: 0.5px;
+}
+
+.btn-section {
+  margin-top: 8%;
+}
+
+.btn {
+  width: 500px;
+  padding: 10px;
+  padding-right: 15px;
+  padding-left: 15px;
+  margin: 0px 20px 10px 20px;
+
+  border-style: none;
+  cursor: pointer;
+}
+
+.login-btn {
+  background-color: rgb(255, 209, 209);
+  color: white;
+  font-family: "Noto Sans KR", sans-serif;
+  font-size: 18px;
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-position: under;
+}
+
+.btn:hover {
+  background: rgb(255, 148, 148);
+  color: white;
+}
+
+body::-webkit-scrollbar {
+  display: none;
+}
+
+img {
+  height: 50%;
+  width: auto;
+}
