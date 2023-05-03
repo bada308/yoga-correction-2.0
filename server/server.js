@@ -4,8 +4,8 @@ import http from "http"; // node.js에 이미 설치되어 있기 때문에 따�
 import cors from "cors";
 
 const corsConfig = {
-  origin: "http://localhost:3000",
-  credential: true,
+  origin: "*",
+  credentials: true,
 };
 
 const app = express();
@@ -17,6 +17,7 @@ app.use("/public", express.static(__dirname + "/public"));
 app.get("/", (req, res) => res.render("home"));
 app.get("/*", (_, res) => res.redirect("/"));
 */
+
 app.use(cors(corsConfig));
 
 // http 서버 생성
@@ -29,24 +30,24 @@ const wsServer = new Server(httpServer, {
 });
 
 wsServer.on("connection", (socket) => {
-  socket.on("join_room", (roomName) => {
-    socket.join(roomName);
-    socket.to(roomName).emit("welcome");
+  socket.on("join_room", (data) => {
+    socket.join(data.roomName);
+    socket.to(data.roomName).emit("welcome");
     console.log("welcome event");
   });
 
-  socket.on("offer", (offer, roomName) => {
-    socket.to(roomName).emit("offer", offer);
+  socket.on("offer", (data) => {
+    socket.to(data.roomName).emit("offer", data.offer);
     console.log("offer event");
   });
 
-  socket.on("answer", (answer, roomName) => {
-    socket.to(roomName).emit("answer", answer);
+  socket.on("answer", (data) => {
+    socket.to(data.roomName).emit("answer", data.answer);
     console.log("answer event");
   });
 
-  socket.on("ice", (ice, roomName) => {
-    socket.to(roomName).emit("ice", ice);
+  socket.on("ice", (data) => {
+    socket.to(data.roomName).emit("ice", data.ice);
     console.log("ice event");
   });
 });

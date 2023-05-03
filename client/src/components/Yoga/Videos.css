@@ -1,0 +1,15 @@
+.myFace{
+    width: 800px;
+    height: 600px;
+}
+
+.peerFace {
+    width: 800px;
+    height: 600px;
+    position: relative;
+}
+
+.peerFace video{
+    position: absolute;
+    top: 10px;
+}

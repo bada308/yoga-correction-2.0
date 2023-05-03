@@ -3,13 +3,31 @@ import * as tf from "@tensorflow/tfjs";
 import React, { useRef, useState, useEffect } from "react";
 import Webcam from "react-webcam";
 import { count } from "../../utils/music";
+import "./Videos.css";
 
 import { POINTS, keypointConnections } from "../../utils/data";
 import { drawPoint, drawSegment } from "../../utils/helper";
 import { treeRightLegAngle } from "../../pages/Yoga/TreeCorrection";
 import { chairHipAngle } from "../../pages/Yoga/ChairCorrection";
 import { dogHipAngle } from "../../pages/Yoga/DogCorrection";
-import { newPC, newSocket } from "../../utils/helper/socket";
+import { io, Socket } from "socket.io-client";
+
+const pc_config = {
+  iceServers: [
+    {
+      urls: [
+        "stun:stun.l.google.com:19302",
+        "stun:stun1.l.google.com:19302",
+        "stun:stun2.l.google.com:19302",
+        "stun:stun3.l.google.com:19302",
+        "stun:stun4.l.google.com:19302",
+      ],
+    },
+  ],
+};
+
+let newSocket = io.connect("http://localhost:8080");
+let newPC = new RTCPeerConnection(pc_config);
 
 let skeletonColor = "rgb(255,255,255)";
 let interval;
@@ -37,21 +55,19 @@ const Videos = ({ isStartPose, currentPose, width, height, roomName }) => {
   // 2. Socket 수신 이벤트
 
   // Socket
-  newSocket.on("welcome", () => {
-    console.log("newPC.createOffer");
-    const offer = newPC.createOffer();
-    console.log("newPC.setLocalDescription");
-    newPC.setLocalDescription(offer);
-    console.log("emit offer");
-    newSocket.emit("offer", { offer, roomName });
+  newSocket.on("welcome", async () => {
+    await createOffer();
+    console.log("get offer");
   });
 
   newSocket.on("offer", async (offer) => {
-    newPC.setRemoteDescription(offer);
-    const answer = await newPC.createAnswer();
-    newPC.setLocalDescription(answer);
-    console.log("emit answer");
-    newSocket.emit("answer", { answer, roomName });
+    await createAnswer(offer);
+    console.log("get answer");
+  });
+
+  newSocket.on("answer", async (answer) => {
+    await newPC.setRemoteDescription(answer);
+    console.log("get answer");
   });
 
   newSocket.on("ice", (ice) => {
@@ -64,8 +80,8 @@ const Videos = ({ isStartPose, currentPose, width, height, roomName }) => {
   // 3. MediaStream 설정 및 RTCPeerConnection 이벤트
   navigator.mediaDevices
     .getUserMedia({
-      video: true,
       audio: true,
+      video: true,
     })
     .then((stream) => {
       if (webcamRef.current) webcamRef.current.srcObject = stream;
@@ -77,10 +93,12 @@ const Videos = ({ isStartPose, currentPose, width, height, roomName }) => {
 
       newPC.onicecandidate = (e) => {
         if (e.candidate) {
+          const ice = e.candidate;
           console.log("onicecandidate");
-          newSocket.emit("candidate", e.candidate);
+          newSocket.emit("ice", { ice, roomName });
         }
       };
+
       newPC.oniceconnectionstatechange = (e) => {
         console.log(e);
       };
@@ -99,38 +117,38 @@ const Videos = ({ isStartPose, currentPose, width, height, roomName }) => {
       console.log(`getUserMedia error:${error}`);
     });
 
-  // // 4. 상대방에게 offer signal 전달
-  // const createOffer = () => {
-  //   newPC
-  //     .createOffer({ offerToReceiveAudio: true, offerToReceiveVideo: true })
-  //     .then((sdp) => {
-  //       newPC.setLocalDescription(new RTCSessionDescription(sdp));
-  //       newSocket.emit("offer", sdp);
-  //     })
-  //     .catch((error) => {
-  //       console.log(error);
-  //     });
-  // };
+  // 4. 상대방에게 offer signal 전달
+  const createOffer = async () => {
+    await newPC
+      .createOffer({ offerToReceiveAudio: true, offerToReceiveVideo: true })
+      .then(async (offer) => {
+        await newPC.setLocalDescription(offer);
+        newSocket.emit("offer", { offer, roomName });
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
 
-  // // 5. 상대방에게 answer signal 전달
-  // const createAnswer = (sdp) => {
-  //   newPC.setRemoteDescription(new RTCSessionDescription(sdp)).then(() => {
-  //     console.log("answer set remote description success");
-  //     newPC
-  //       .createAnswer({
-  //         offerToReceiveAudio: true,
-  //         offerToReceiveAudio: true,
-  //       })
-  //       .then((sdp1) => {
-  //         console.log("create answer");
-  //         newPC.setLocalDescription(new RTCSessionDescription(sdp1));
-  //         newSocket.emit("answer", sdp1);
-  //       })
-  //       .catch((error) => {
-  //         console.log(error);
-  //       });
-  //   });
-  // };
+  // 5. 상대방에게 answer signal 전달
+  const createAnswer = (offer) => {
+    newPC.setRemoteDescription(offer).then(async () => {
+      console.log("answer set remote description success");
+      await newPC
+        .createAnswer({
+          offerToReceiveVideo: true,
+          offerToReceiveAudio: true,
+        })
+        .then(async (answer) => {
+          console.log("create answer");
+          await newPC.setLocalDescription(answer);
+          newSocket.emit("answer", { answer, roomName });
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    });
+  };
 
   // Pose Detection
   /**
@@ -238,11 +256,10 @@ const Videos = ({ isStartPose, currentPose, width, height, roomName }) => {
   const detectPose = async (detector, poseClassifier, countAudio) => {
     if (
       typeof webcamRef.current !== "undefined" &&
-      webcamRef.current !== null &&
-      webcamRef.current.video.readyState === 4
+      webcamRef.current !== null
     ) {
       let notDetected = 0;
-      const video = webcamRef.current.video;
+      const video = webcamRef.current;
       const pose = await detector.estimatePoses(video);
       const ctx = canvasRef.current.getContext("2d");
       ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
@@ -391,7 +408,13 @@ const Videos = ({ isStartPose, currentPose, width, height, roomName }) => {
   return (
     <div className="Videos">
       <div className="myFace">
-        <Webcam id="my-webcam" className="webcam" ref={webcamRef} />
+        <video
+          width={width}
+          id="my-webcam"
+          className="webcam"
+          ref={webcamRef}
+          autoPlay
+        />
         <canvas
           width={width}
           height={height}
@@ -405,6 +428,7 @@ const Videos = ({ isStartPose, currentPose, width, height, roomName }) => {
           id="peer-webcam"
           className="webcam"
           ref={peercamRef}
+          autoPlay
         />
         <canvas
           width={width}
