@@ -26,7 +26,11 @@ const pc_config = {
   ],
 };
 
-let newSocket = io.connect("http://localhost:8080");
+let newSocket = io("http://localhost:8080", {
+  cors: {
+    origin: "*",
+  },
+});
 let newPC = new RTCPeerConnection(pc_config);
 
 let skeletonColor = "rgb(255,255,255)";
@@ -65,9 +69,10 @@ const Videos = ({ isStartPose, currentPose, width, height, roomName }) => {
     console.log("get answer");
   });
 
-  newSocket.on("answer", async (answer) => {
-    await newPC.setRemoteDescription(answer);
-    console.log("get answer");
+  newSocket.on("answer", (answer) => {
+    newPC.setRemoteDescription(answer).then(() => {
+      console.log("get answer");
+    });
   });
 
   newSocket.on("ice", (ice) => {

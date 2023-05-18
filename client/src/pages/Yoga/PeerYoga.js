@@ -7,7 +7,7 @@ import "./Yoga.css";
 
 import { poseImages } from "../../utils/pose_images";
 import { POINTS, keypointConnections } from "../../utils/data";
-import Videos from "../../components/\bYoga/Videos";
+import Videos from "../../components/Yoga/Videos";
 
 let skeletonColor = "rgb(255,255,255)";
 let poseList = [

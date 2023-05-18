@@ -4,7 +4,7 @@ import http from "http"; // node.js에 이미 설치되어 있기 때문에 따�
 import cors from "cors";
 
 const corsConfig = {
-  origin: "*",
+  origins: "*",
   credentials: true,
 };
 
@@ -19,13 +19,17 @@ app.get("/*", (_, res) => res.redirect("/"));
 */
 
 app.use(cors(corsConfig));
+app.options("*", cors());
 
 // http 서버 생성
 const httpServer = http.createServer(app);
 // io 서버 생성
 const wsServer = new Server(httpServer, {
   cors: {
-    origin: "*",
+    origins: "*",
+    credentials: true,
+    methods: ["GET", "POST"],
+    allowedHeaders: ["my-custom-header"],
   },
 });
 
