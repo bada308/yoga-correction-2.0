@@ -26,7 +26,7 @@ const pc_config = {
   ],
 };
 
-let newSocket = io("http://localhost:8080", {
+let newSocket = io("http://44.211.21.168:8080", {
   cors: {
     origin: "*",
   },
